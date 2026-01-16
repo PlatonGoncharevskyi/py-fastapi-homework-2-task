@@ -1,5 +1,5 @@
-from schemas.movies import (
-    MovieDetailSchema,
-    MovieListResponseSchema,
-    MovieListItemSchema
-)
+# from schemas.movies import (
+#     MovieDetailSchema,
+#     MovieListResponseSchema,
+#     MovieListItemSchema
+# )
