@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, field_validator
 from database.models import MovieStatusEnum
 
 
-class FilmBase(BaseModel):
+class MovieBase(BaseModel):
     id: int
     name: str
     date: date
@@ -56,7 +56,7 @@ class MovieCreateRequestSchema(BaseModel):
         return v
 
 
-class MovieCreateResponseSchem(FilmBase):
+class MovieCreateResponseSchem(MovieBase):
     status: MovieStatusEnum
     budget: float
     revenue: float
@@ -95,7 +95,7 @@ class MovieDetailResponseSchema(MovieCreateResponseSchem):
 
 
 class MovieListResponseSchema(BaseModel):
-    movies: List[FilmBase]
+    movies: List[MovieBase]
     prev_page: Optional[str]
     next_page: Optional[str]
     total_pages: int

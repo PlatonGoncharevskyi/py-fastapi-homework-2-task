@@ -59,7 +59,7 @@ async def get_movies(
 
 
 @router.get("/movies/{movie_id}/", response_model=MovieDetailResponseSchema)
-async def get_film(movie_id : int, db: AsyncSession = Depends(get_db)):
+async def get_movie(movie_id : int, db: AsyncSession = Depends(get_db)):
     query = (
         select(MovieModel)
         .options(joinedload(MovieModel.country))
@@ -77,7 +77,7 @@ async def get_film(movie_id : int, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/movies/", response_model=MovieCreateResponseSchem, status_code=status.HTTP_201_CREATED)
-async def create_film(
+async def create_movie(
     movie_request: MovieCreateRequestSchema,
     db: AsyncSession = Depends(get_db),
 ):
@@ -167,7 +167,7 @@ async def create_film(
 
 
 @router.delete("/movies/{movie_id}/", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_film(movie_id: int, db: AsyncSession = Depends(get_db)):
+async def delete_movie(movie_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(MovieModel).where(MovieModel.id == movie_id)
     )
@@ -185,7 +185,7 @@ async def delete_film(movie_id: int, db: AsyncSession = Depends(get_db)):
 @router.patch("/movies/{movie_id}/", response_model=MovieSuccessResponse)
 async def update_movie(
     movie_id: int,
-    film_in: MovieUpdateSchema,
+    movie_in: MovieUpdateSchema,
     db: AsyncSession = Depends(get_db)
 ):
     query = select(MovieModel).where(MovieModel.id == movie_id)
@@ -198,7 +198,7 @@ async def update_movie(
             detail="Movie with the given ID was not found."
         )
 
-    update_data = film_in.model_dump(exclude_unset=True)
+    update_data = movie_in.model_dump(exclude_unset=True)
 
     for key, value in update_data.items():
         setattr(movie, key, value)
