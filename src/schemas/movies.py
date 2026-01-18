@@ -42,7 +42,7 @@ class MovieCreateRequestSchema(BaseModel):
     budget: float = Field(..., ge=0)
     revenue: float = Field(..., ge=0)
 
-    country: str = Field(..., min_length=2, max_length=2)
+    country: str = Field(..., min_length=3, max_length=3)
 
     genres: List[str]
     actors: List[str]
@@ -100,10 +100,3 @@ class MovieListResponseSchema(BaseModel):
     next_page: Optional[str]
     total_pages: int
     total_items: int
-
-
-class MovieDeleteSchema(FilmBase):
-    id: int
-
-    class Config:
-        from_attributes = True

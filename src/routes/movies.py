@@ -1,28 +1,26 @@
 import math
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 from starlette import status
 
-from database.models import MovieModel as Film
 from database import get_db, MovieModel
 from database.models import CountryModel, GenreModel, ActorModel, LanguageModel
 from schemas.movies import MovieDetailResponseSchema, MovieListResponseSchema, MovieCreateResponseSchem, \
-    MovieCreateRequestSchema, CountrySchema, MovieDeleteSchema, MovieUpdateSchema, MovieSuccessResponse
+    MovieCreateRequestSchema, MovieUpdateSchema, MovieSuccessResponse
 
 router = APIRouter()
 
 @router.get("/movies/", response_model=MovieListResponseSchema, name="get_movies")
 async def get_movies(
-    request: Request,
     page: int = Query(1, ge=1),
     per_page: int = Query(10, ge=1, le=20),
     db: AsyncSession = Depends(get_db),
 ):
-    total_items = await db.scalar(select(func.count()).select_from(Film))
+    total_items = await db.scalar(select(func.count()).select_from(MovieModel))
     total_items = int(total_items or 0)
 
     if total_items == 0:
@@ -35,8 +33,8 @@ async def get_movies(
 
     offset = (page - 1) * per_page
     result = await db.scalars(
-        select(Film)
-        .order_by(Film.id.desc())
+        select(MovieModel)
+        .order_by(MovieModel.id.desc())
         .offset(offset)
         .limit(per_page)
 
@@ -60,15 +58,15 @@ async def get_movies(
     }
 
 
-@router.get("/movies/{film_id}/", response_model=MovieDetailResponseSchema)
-async def get_film(film_id : int, db: AsyncSession = Depends(get_db)):
+@router.get("/movies/{movie_id}/", response_model=MovieDetailResponseSchema)
+async def get_film(movie_id : int, db: AsyncSession = Depends(get_db)):
     query = (
-        select(Film)
-        .options(joinedload(Film.country))
-        .options(selectinload(Film.genres))
-        .options(selectinload(Film.actors))
-        .options(selectinload(Film.languages))
-        .where(Film.id == film_id)
+        select(MovieModel)
+        .options(joinedload(MovieModel.country))
+        .options(selectinload(MovieModel.genres))
+        .options(selectinload(MovieModel.actors))
+        .options(selectinload(MovieModel.languages))
+        .where(MovieModel.id == movie_id)
     )
 
     result = await db.execute(query)
@@ -168,10 +166,10 @@ async def create_film(
     return final_movie
 
 
-@router.delete("/movies/{film_id}/", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_film(film_id: int, db: AsyncSession = Depends(get_db)):
+@router.delete("/movies/{movie_id}/", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_film(movie_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(MovieModel).where(MovieModel.id == film_id)
+        select(MovieModel).where(MovieModel.id == movie_id)
     )
 
     movie = result.scalar_one_or_none()
@@ -184,13 +182,13 @@ async def delete_film(film_id: int, db: AsyncSession = Depends(get_db)):
 
     return None
 
-@router.patch("/movies/{film_id}/", response_model=MovieSuccessResponse)
+@router.patch("/movies/{movie_id}/", response_model=MovieSuccessResponse)
 async def update_movie(
-    film_id: int,
+    movie_id: int,
     film_in: MovieUpdateSchema,
     db: AsyncSession = Depends(get_db)
 ):
-    query = select(MovieModel).where(MovieModel.id == film_id)
+    query = select(MovieModel).where(MovieModel.id == movie_id)
     result = await db.execute(query)
     movie = result.scalar_one_or_none()
 
